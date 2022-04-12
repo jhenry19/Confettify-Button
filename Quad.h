@@ -1,6 +1,7 @@
 #ifndef CONFETTIFY_QUAD_H
 #define CONFETTIFY_QUAD_H
 
+
 struct color {
     double red;
     double green;

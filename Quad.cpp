@@ -1,4 +1,5 @@
 #include "Quad.h"
+#include "graphics.h"
 
 Quad::Quad() {
     fill = {0, 0, 0};
@@ -85,6 +86,16 @@ void Quad::resize(unsigned int width, unsigned int height) {
 }
 
 void Quad::draw() const {
-    // TODO: Implement
+    // Set drawing color to fill color
+    glColor3f(fill.red, fill.green, fill.blue);
+    // Draw rectangles as Quads
+    glBegin(GL_QUADS);
+    glVertex2i(this->getLeftX(), this->getTopY());
+    glVertex2i(this->getLeftX(), this->getBottomY());
+    glVertex2i(this->getRightX(), this->getBottomY());
+    glVertex2i(this->getRightX(), this->getTopY());
+
+
+    glEnd();
     // Don't forget to set the color to the fill field
 }

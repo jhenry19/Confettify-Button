@@ -5,10 +5,15 @@
 #include <vector>
 using namespace std;
 
+enum screen { intro, button, finish };
+
 GLdouble width, height;
 int wd;
 Button spawn({1, 0, 0}, {100, 100}, 100, 50, "Spawn");
 vector<Quad> confetti;
+screen currentScreen = intro;
+int confettiCount = 0;
+
 
 void spawnConfetti() {
     confetti.push_back(Quad({rand() % 10 / 10.0, rand() % 10 / 10.0, rand() % 10 / 10.0}, {rand() % (int)width, rand() % (int)height}, 10, 10));
@@ -41,17 +46,66 @@ void display() {
     glClear(GL_COLOR_BUFFER_BIT);   // Clear the color buffer with current clearing color
     
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // If the confetti count is at 100, the user is shown an exit screen
+    if (confettiCount >= 100) currentScreen = finish;
     
-    /*
-     * Draw here
-     */
+    // Intro screen
+    if (currentScreen == intro) {
+        glColor3f(255, 255, 255);
 
-    // TODO: call the Button's draw method.
 
-    for (const Quad &piece : confetti) {
-        piece.draw();
+        // Prints the message to the window
+        string line1 = "Get Ready to Party!";
+        string line2 = "Each time you click the button, more confetti will appear.";
+        string line3 = "To begin, press s. To quit, press the escape key";
+
+        glRasterPos2i(width * .3, height * .3);
+        for (const char &letter : line1) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+        }
+
+        glRasterPos2i(width * .05, height * .4);
+        for (const char &letter : line2) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+        }
+        glRasterPos2i(width * .1, height * .5);
+        for (const char &letter : line3) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+        }
     }
-    
+    // Main button screen
+    else if (currentScreen == button) {
+        // call the Button's draw method.
+        spawn.draw();
+
+        for (const Quad &piece : confetti) {
+            piece.draw();
+        }
+    }
+    // Ending screen
+    else if (currentScreen == finish) {
+        glColor3f(255, 255, 255);
+
+        // Prints the message to the window
+        string line1 = "The party is over!";
+        string line2 = "Time to clean up.";
+        string line3 = "Press the escape key to exit";
+
+        glRasterPos2i(width * .35, height * .3);
+        for (const char &letter : line1) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+        }
+        glRasterPos2i(width * .35, height * .4);
+        for (const char &letter : line2) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+        }
+        glRasterPos2i(width * .25, height * .5);
+        for (const char &letter : line3) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+        }
+    }
+
     glFlush();  // Render now
 }
 
@@ -61,6 +115,10 @@ void kbd(unsigned char key, int x, int y) {
     if (key == 27) {
         glutDestroyWindow(wd);
         exit(0);
+    }
+    // s key is pressed and the current screen is on intro
+    if (key == 115 && currentScreen == intro) {
+        currentScreen = button;
     }
     
     glutPostRedisplay();
@@ -86,17 +144,23 @@ void kbdS(int key, int x, int y) {
 }
 
 void cursor(int x, int y) {
-    // TODO: If the Button is overlapping with the (x, y) coordinate passed in, call the hover method. Otherwise, call the release method.
-    
+    // If the Button is overlapping with the (x, y) coordinate passed in, call the hover method. Otherwise, call the release method.
+    if (spawn.isOverlapping(x,y)) spawn.hover();
+    else spawn.release();
     glutPostRedisplay();
 }
 
 // button will be GLUT_LEFT_BUTTON or GLUT_RIGHT_BUTTON
 // state will be GLUT_UP or GLUT_DOWN
 void mouse(int button, int state, int x, int y) {
-    // TODO: If the left button is down and the cursor is overlapping with the Button, call the pressDown method. Otherwise, call the release method.
-
-    // TODO: If the left button is up and the cursor is overlapping with the Button, call spawnConfetti.
+    // If the left button is down and the cursor is overlapping with the Button, call the pressDown method. Otherwise, call the release method.
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && spawn.isOverlapping(x,y)) spawn.pressDown();
+    else spawn.release();
+    // If the left button is up and the cursor is overlapping with the Button, call spawnConfetti.
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_UP && spawn.isOverlapping(x,y)) {
+        spawnConfetti();
+        ++confettiCount;
+    }
     
     glutPostRedisplay();
 }

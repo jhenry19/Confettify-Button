@@ -127,16 +127,16 @@ void kbd(unsigned char key, int x, int y) {
 void kbdS(int key, int x, int y) {
     switch(key) {
         case GLUT_KEY_DOWN:
-            
+            spawn.move(0, 5);
             break;
         case GLUT_KEY_LEFT:
-            
+            spawn.move(-5, 0);
             break;
         case GLUT_KEY_RIGHT:
-            
+            spawn.move(5, 0);
             break;
         case GLUT_KEY_UP:
-            
+            spawn.move(0, -5);
             break;
     }
     
